@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
+from typing import Optional
 
 class Libro(BaseModel):
     id: int
@@ -9,6 +10,7 @@ class Libro(BaseModel):
     anio_publicacion: int
     total_ejemplares: int = Field(..., gt=0)
     ejemplares_disponibles: int = Field(..., ge=0)
+    portada: Optional[str] = None
 
     @field_validator("anio_publicacion")
     def validar_anio(cls, value):
