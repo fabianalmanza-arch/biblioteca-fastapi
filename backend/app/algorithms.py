@@ -14,7 +14,17 @@ def merge(izquierda, derecha, campo):
     i = j = 0
 
     while i < len(izquierda) and j < len(derecha):
-        if izquierda[i][campo] <= derecha[j][campo]:
+
+        val_izq = izquierda[i][campo]
+        val_der = derecha[j][campo]
+
+        # 🔥 CLAVE: normalizar valores
+        if isinstance(val_izq, str):
+            val_izq = val_izq.lower()
+        if isinstance(val_der, str):
+            val_der = val_der.lower()
+
+        if val_izq <= val_der:
             resultado.append(izquierda[i])
             i += 1
         else:

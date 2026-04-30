@@ -45,14 +45,16 @@ function App() {
   };
 
   // Buscar
-  const buscar = (valor) => {
+  const buscar = async (valor) => {
     setTexto(valor);
 
-    const filtrados = todos.filter((libro) =>
-      libro.titulo.toLowerCase().includes(valor.toLowerCase())
-    );
+    if (!valor) {
+      setLibros(todos);
+      return;
+    }
 
-    setLibros(filtrados);
+    const res = await API.get(`/libros/buscar?texto=${valor}`);
+    setLibros(res.data);
   };
 
   // Filtrar desde árbol

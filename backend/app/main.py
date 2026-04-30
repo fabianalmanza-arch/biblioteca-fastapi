@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Query
 from app.models import Libro
 from app.database import leer_libros, guardar_libros
 from fastapi.middleware.cors import CORSMiddleware
@@ -80,6 +80,43 @@ def listar_libros(categoria: str = None):
         libros = [l for l in libros if l["categoria"] == categoria]
 
     return libros
+
+# -----------------------
+# Buscar Libro
+# -----------------------
+@app.get("/libros/buscar")
+def buscar_libros(texto: str = Query(...)):
+    libros = leer_libros()
+    resultado = []
+
+    texto = texto.lower()
+
+    for libro in libros:   # búsqueda lineal O(n)
+        if (
+            texto in libro["titulo"].lower()
+            or texto in libro["autor"].lower()
+            or texto in libro["categoria"].lower()
+            or texto in str(libro["id"])
+        ):
+            resultado.append(libro)
+
+    return resultado
+
+@app.get("/libros/ordenar")
+def ordenar_libros(campo: str = Query(...)):
+    libros = leer_libros()
+
+    campos_validos = [
+        "titulo",
+        "autor",
+        "anio_publicacion",
+        "ejemplares_disponibles"
+    ]
+
+    if campo not in campos_validos:
+        raise HTTPException(status_code=400, detail="Campo inválido")
+
+    return merge_sort(libros, campo)
 
 # -----------------------
 # OBTENER LIBRO
@@ -227,43 +264,6 @@ def ver_prestamos():
                 })
 
     return resultado
-
-# -----------------------
-# Buscar Libro
-# -----------------------
-@app.get("/libros/buscar")
-def buscar_libros(texto: str):
-    libros = leer_libros()
-    resultado = []
-
-    texto = texto.lower()
-
-    for libro in libros:   # búsqueda lineal O(n)
-        if (
-            texto in libro["titulo"].lower()
-            or texto in libro["autor"].lower()
-            or texto in libro["categoria"].lower()
-            or texto in str(libro["id"])
-        ):
-            resultado.append(libro)
-
-    return resultado
-
-@app.get("/libros/ordenar")
-def ordenar_libros(campo: str):
-    libros = leer_libros()
-
-    campos_validos = [
-        "titulo",
-        "autor",
-        "anio_publicacion",
-        "ejemplares_disponibles"
-    ]
-
-    if campo not in campos_validos:
-        raise HTTPException(status_code=400, detail="Campo inválido")
-
-    return merge_sort(libros, campo)
 
 @app.get("/categorias/arbol")
 def obtener_arbol():
